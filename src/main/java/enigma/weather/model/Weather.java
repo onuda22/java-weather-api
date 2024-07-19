@@ -3,11 +3,14 @@ package enigma.weather.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Weather {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,9 +24,10 @@ public class Weather {
     private String timezone_abbreviation;
     private Integer elevation;
 
-    @OneToOne
-    private DailyUnit dailyUnit;
+    @Embedded
+    private DailyUnit dailyUnits;
 
-    @OneToOne
-    private Daily daily;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "weather")
+    private List<Daily> daily;
+
 }
