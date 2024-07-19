@@ -1,25 +1,19 @@
 package enigma.weather.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Entity
-@Table(name = "daily_unit")
+@Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class DailyUnit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
 
-    private String time;
-    private String temperature;
-    private String windSpeed;
-    private String relativeHumidity;
-    private String rainSum;
+    private String time = "iso8601";
+    private String temperature = "°C";
+    private String windSpeed = "km/h";
+    private String relativeHumidity = "%";
+    private String rainSum = "mm";
 }

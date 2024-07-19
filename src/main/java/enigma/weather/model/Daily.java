@@ -1,10 +1,8 @@
 package enigma.weather.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -14,14 +12,19 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Daily {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private List<String> time;
-    private List<Double> temperature;
-    private List<Double> wind;
-    private List<Integer> relativeHumidity;
-    private List<Integer> rainSum;
+    private String time;
+    private Double temperature;
+    private Double wind;
+    private Integer relativeHumidity;
+    private Double rainSum;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "weather")
+    private Weather weather;
 }
