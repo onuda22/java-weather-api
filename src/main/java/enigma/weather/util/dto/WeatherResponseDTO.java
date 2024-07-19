@@ -1,4 +1,4 @@
-package java.weather.util.dto;
+package enigma.weather.util.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

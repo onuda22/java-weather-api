@@ -1,12 +1,12 @@
-package java.weather.service.implementation;
+package enigma.weather.service.implementation;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.weather.service.WeatherService;
-import java.weather.util.dto.WeatherResponseDTO;
+import enigma.weather.service.WeatherService;
+import enigma.weather.util.dto.WeatherResponseDTO;
 
 @Service
 public class WeatherServiceImpl implements WeatherService {
@@ -27,7 +27,7 @@ public class WeatherServiceImpl implements WeatherService {
                     .queryParam("models", "NICAM16_8S")
                     .queryParam("timezone", "Asia/Bangkok")
                     .queryParam("disable_bias_correction", true)
-                    .queryParam("daily", "temperature_2m_mean,rain_sum")
+                    .queryParam("daily", "temperature_2m_mean,wind_speed_10m_mean,relative_humidity_2m_mean,rain_sum")
                     .toUriString();
 
             return restClient.get()
