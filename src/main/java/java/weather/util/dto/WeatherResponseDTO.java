@@ -10,21 +10,30 @@ import java.util.Map;
 @Setter
 public class WeatherResponseDTO {
 
-    @JsonProperty()
+    @JsonProperty("latitude")
     private double latitude;
 
+    @JsonProperty("longitude")
     private double longitude;
 
+    @JsonProperty("generationtime_ms")
     private double generationtimeMs;
 
     @JsonProperty("utc_offset_seconds")
     private int utcOffsetSeconds;
 
+    @JsonProperty("timezone")
     private String timezone;
+
+    @JsonProperty("timezone_abbreviation")
+    private String timezoneAbbreviation;
+
+    @JsonProperty("elevation")
+    private int elevation;
 
     @JsonProperty("daily_units")
     private Map<String, String> dailyUnits;
 
-    @JsonProperty("daily_units")
+    @JsonProperty("daily")
     private WeatherDailyDTO daily;
 }
