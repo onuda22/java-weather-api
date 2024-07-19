@@ -29,30 +29,37 @@ public class WeatherServiceImpl implements WeatherService {
 
     @Override
     public WeatherResponseDTO getWeatherData(double latitude, double longitude, String startDate, String endDate) {
-        try {
-            String url = UriComponentsBuilder.fromHttpUrl("https://climate-api.open-meteo.com/v1/climate")
-                    .queryParam("latitude", latitude)
-                    .queryParam("longitude", longitude)
-                    .queryParam("start_date", startDate)
-                    .queryParam("end_date", endDate)
-                    .queryParam("models", "NICAM16_8S")
-                    .queryParam("timezone", "Asia/Bangkok")
-                    .queryParam("disable_bias_correction", true)
-                    .queryParam("daily", "temperature_2m_mean,wind_speed_10m_mean,relative_humidity_2m_mean,rain_sum")
-                    .toUriString();
+        Optional<Weather> existingWeather = weatherRepository.findByLatitudeAndLongitudeAndUtcOffsetSeconds(
+                latitude, longitude, 0); // Assuming UTC offset is 0 for simplicity, modify as needed
 
-            WeatherResponseDTO dto =  restClient.get()
-                    .uri(url)
-                    .retrieve()
-                    .body(WeatherResponseDTO.class);
+        if (existingWeather.isPresent()) {
+            return ConvertToWeather.convertToWeatherResponseDTO(existingWeather.get());
+        } else {
+            try {
+                String url = UriComponentsBuilder.fromHttpUrl("https://climate-api.open-meteo.com/v1/climate")
+                        .queryParam("latitude", latitude)
+                        .queryParam("longitude", longitude)
+                        .queryParam("start_date", startDate)
+                        .queryParam("end_date", endDate)
+                        .queryParam("models", "NICAM16_8S")
+                        .queryParam("timezone", "Asia/Bangkok")
+                        .queryParam("disable_bias_correction", true)
+                        .queryParam("daily", "temperature_2m_mean,wind_speed_10m_mean,relative_humidity_2m_mean,rain_sum")
+                        .toUriString();
 
-            Weather result = ConvertToWeather.convertToWeather(dto);
-            updateWeatherData(result);
+                WeatherResponseDTO dto = restClient.get()
+                        .uri(url)
+                        .retrieve()
+                        .body(WeatherResponseDTO.class);
 
-            return dto;
+                Weather result = ConvertToWeather.convertToWeather(dto);
+                updateWeatherData(result);
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+                return dto;
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
