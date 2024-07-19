@@ -1,39 +1,52 @@
 package enigma.weather.service.implementation;
 
 import enigma.weather.model.Daily;
-import enigma.weather.model.DailyUnit;
 import enigma.weather.model.Weather;
 import enigma.weather.repositories.WeatherRepository;
 import enigma.weather.util.dto.ConvertToWeather;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import enigma.weather.service.WeatherService;
 import enigma.weather.util.dto.WeatherResponseDTO;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class WeatherServiceImpl implements WeatherService {
     private final RestClient restClient;
     private final WeatherRepository weatherRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public WeatherServiceImpl(RestClient restClient, WeatherRepository weatherRepository) {
+    public WeatherServiceImpl(RestClient restClient, WeatherRepository weatherRepository, RedisTemplate<String, Object> redisTemplate) {
         this.restClient = restClient;
         this.weatherRepository = weatherRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
+    //kalo pake cacheManager bisa pakai anotasi @Cacheable
+//    @Cacheable(value = "weatherCache", key = "#latitude + '-' + #longitude + '-' + #startDate + '-' + #endDate")
     public WeatherResponseDTO getWeatherData(double latitude, double longitude, String startDate, String endDate) {
+        String cacheKey = latitude + "-" + longitude + "-" + startDate + "-" + endDate;
+        WeatherResponseDTO cachedWeather = (WeatherResponseDTO) redisTemplate.opsForValue().get(cacheKey);
+
+        if (cachedWeather != null) {
+            return cachedWeather;
+        }
+
         Optional<Weather> existingWeather = weatherRepository.findByLatitudeAndLongitudeAndUtcOffsetSeconds(
-                latitude, longitude, 0); // Assuming UTC offset is 0 for simplicity, modify as needed
+                latitude, longitude, 0);
 
         if (existingWeather.isPresent()) {
-            return ConvertToWeather.convertToWeatherResponseDTO(existingWeather.get());
+            WeatherResponseDTO responseDTO = ConvertToWeather.convertToWeatherResponseDTO(existingWeather.get());
+            redisTemplate.opsForValue().set(cacheKey, responseDTO, 1, TimeUnit.MINUTES);
+            return responseDTO;
         } else {
             try {
                 String url = UriComponentsBuilder.fromHttpUrl("https://climate-api.open-meteo.com/v1/climate")
@@ -54,6 +67,8 @@ public class WeatherServiceImpl implements WeatherService {
 
                 Weather result = ConvertToWeather.convertToWeather(dto);
                 updateWeatherData(result);
+
+                redisTemplate.opsForValue().set(cacheKey, dto, 1, TimeUnit.MINUTES);
 
                 return dto;
 
