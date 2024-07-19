@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ConvertToWeather {
     public static Weather convertToWeather(WeatherResponseDTO dto) throws Exception{
-        List<Daily> dailyList = new ArrayList<Daily>();
+        List<Daily> dailyList = new ArrayList<>();
         List<String> times = dto.getDaily().getTime();
         List<Double> temperatures = dto.getDaily().getTemperature2mMean();
         List<Double> winds = dto.getDaily().getWindSpeed10mMean();
