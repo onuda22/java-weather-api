@@ -1,4 +1,4 @@
-package java.weather.configuration;
+package enigma.weather.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

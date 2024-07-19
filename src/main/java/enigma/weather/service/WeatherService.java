@@ -1,6 +1,6 @@
-package java.weather.service;
+package enigma.weather.service;
 
-import java.weather.util.dto.WeatherResponseDTO;
+import enigma.weather.util.dto.WeatherResponseDTO;
 
 public interface WeatherService {
     WeatherResponseDTO getWeatherData(double latitude, double longitude, String startDate, String endDate);
